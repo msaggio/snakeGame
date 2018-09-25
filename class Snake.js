@@ -20,8 +20,16 @@ class Snake{
   }
 
   turnLeft(){
-    if (this.position)
+    if (this.direction_==0)
+      this.direction_=1;
+    else this.direction_=0;
 
+  }
+
+  turnRight(){
+    if (this.direction_==1)
+     this.direction_=0;
+    else this.direction=1;
   }
 }
 
@@ -37,9 +45,13 @@ class Point{
 }
 
 let mainSnake = new Snake("main");
-mainSnake.move(10);
+mainSnake.move(10)
 console.log(mainSnake.position)
 mainSnake.turn()
 mainSnake.move(20)
 console.log(mainSnake.position)
+mainSnake.turnLeft(20)
+console.log(mainSnake.position)
+
+
 
