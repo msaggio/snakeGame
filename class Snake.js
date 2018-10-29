@@ -1,18 +1,18 @@
 class Snake{
   constructor (){
-    this.position_ = 0;
+    this.position_ = new Point(0,0);
     this.direction_=0;
   }
+
   move(squares){
     if (this.direction_== 0)
-      this.position_=this.position_ + squares;
-    else this.position_=this.position_ -squares;
-   
-  }
-  turn(){
-    if (this.direction_==0)
-     this.direction_=1;
-    else this.direction_=0;
+      this.position_= new Point (this.position_.x,this.position_.y + squares);
+    else if(this.direction_ == 1)
+      this.position_ = new Point (this.position_.x + squares,this.position_.y);
+    else if(this.direction_== 2)
+      this.position_ = new Point (this.position_.x,this.position_.y - squares);
+    else if(this.direction_ == 3)
+      this.position_ = new Point (this.position_.x - squares,this.position_.y);
   }
 
   get position(){
@@ -21,37 +21,72 @@ class Snake{
 
   turnLeft(){
     if (this.direction_==0)
+      this.direction_=3;
+    else if (this.direction_==1)
+      this.direction_=0;
+    else if (this.direction_==2)
       this.direction_=1;
-    else this.direction_=0;
-
+    else if (this.direction_==3)
+      this.direction_=2;
   }
 
   turnRight(){
-    if (this.direction_==1)
-     this.direction_=0;
-    else this.direction=1;
+    if (this.direction_==0)
+     this.direction_=1;
+    else if (this.direction_==1)
+      this.direction_=2;
+    else if (this.direction_==2)
+      this.direction_=3;
+    else if (this.direction_==3)
+      this.direction_=0;
+    
   }
 }
 
 class Point{
-  constructor(){
-    this.x_=20;
-    this.y_=20;
+  constructor(x,y){
+    this.x_=x;
+    this.y_=y;
   }
-
-  get position(){
-    return this.position_;
+  get x(){
+    return this.x_;
+  }
+  get y(){
+    return this.y_;
   }
 }
 
-let mainSnake = new Snake("main");
-mainSnake.move(10)
-console.log(mainSnake.position)
-mainSnake.turn()
-mainSnake.move(20)
-console.log(mainSnake.position)
-mainSnake.turnLeft(20)
-console.log(mainSnake.position)
+
+class WorldModel{
+  constructor(snake){
+    this.snake_ = snake;  
+  }
+  update(steps){
+    this.snake.move(steps)
+  }
+ get snake(){
+   return this.snake_;
+ }
+}
 
 
+
+class SnakeController{
+  constructor(world,snake){
+    this.world_=snakeWorld_;
+    this.snake_=slitherer_;
+  }
+
+  turnSnakeLeft(turnLeft){
+    
+  }
+}
+
+let mainSnake = new Snake;
+let newWorld = new WorldModel(mainSnake);
+newWorld.update(5);
+console.log(mainSnake.position);
+mainSnake.turnRight();
+newWorld.update(10);
+console.log(mainSnake.position);
 
