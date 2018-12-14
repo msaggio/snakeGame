@@ -1,0 +1,311 @@
+class Snake{
+  constructor (){
+    this.position_ = new Point(0,0);
+    this.direction_=0;
+  }
+
+  move(squares){
+    if (this.direction_== 0)
+      this.position_= new Point (this.position_.x,this.position_.y - squares);
+    else if(this.direction_ == 1)
+      this.position_ = new Point (this.position_.x + squares,this.position_.y);
+    else if(this.direction_== 2)
+      this.position_ = new Point (this.position_.x,this.position_.y + squares);
+    else if(this.direction_ == 3)
+      this.position_ = new Point (this.position_.x - squares,this.position_.y);
+  }
+
+  get direction(){
+    return this.direction_;
+  }
+
+  get position(){
+    return this.position_;
+  }
+
+  turnLeft(){
+    if (this.direction_==0)
+      this.direction_=3;
+    else if (this.direction_==1)
+      this.direction_=0;
+    else if (this.direction_==2)
+      this.direction_=1;
+    else if (this.direction_==3)
+      this.direction_=2;
+  }
+
+  turnRight(){
+    if (this.direction_==0)
+     this.direction_=1;
+    else if (this.direction_==1)
+      this.direction_=2;
+    else if (this.direction_==2)
+      this.direction_=3;
+    else if (this.direction_==3)
+      this.direction_=0;
+  }
+}
+
+class Point{
+  constructor(x,y){
+    this.x_=x;
+    this.y_=y;
+  }
+  get x(){
+    return this.x_;
+  }
+  get y(){
+    return this.y_;
+  }
+}
+
+class WorldModel{
+  constructor(snake,view,width,height){
+    this.width_ = width;
+    this.height_ = height;
+    this.snake_ = snake;
+    this.view_ = null;
+  }
+
+  update(steps){
+    this.snake_.move(steps);
+    this.view_.display(this);
+  }
+
+ get snake(){
+   return this.snake_;
+ }
+
+ get width(){
+   return this.width_;
+  }
+
+ get height(){
+   return this.height_;
+ }
+
+ set view(v){
+   if(v instanceof View) this.view_ = v;
+   else throw new Error ("not an instance of a view");
+ }
+
+}
+
+class SnakeController{
+  constructor(world,snake){
+    this.world_ = world;
+    this.slitherer_ = snake;
+  }
+
+  turnSnakeLeft(){
+    this.slitherer_.turnLeft();
+  }
+
+  turnSnakeRight(){
+    this.slitherer_.turnLeft();
+  }
+
+  get snakePosition(){
+    return this.position_;
+  }
+
+  get snakeDirection(){
+    return this.direction;
+  }
+
+  get worldWidth(){
+    return this.world_.width;
+  }
+
+  get worldHeight(){
+    return this.world_.height;
+  }
+}
+
+class Player {
+  constructor(sc){
+    if(this.constructor === Player) throw new Error("Cannot instantiate a Player, which is an abstract base class");
+    else if (!(this.makeTurn instanceof Function)) throw new Error ("Base class must implement makeTurn method");
+    this.sc_ = sc;
+  }
+}
+
+class AvoidWallsPlayer extends Player {
+  constructor(){
+  super();
+  }
+
+  makeTurn(){
+    if(this.direction ==3 && this.sc_.snakePosition.x == 0 && this.sc_.snakePosition.y > this.sc_.worldHeight / 2)
+    this.sc_.turnSnakeRight();
+
+    if(this.direction ==3 && this.sc_.snakePosition.x == 0 && this.sc_.snakePosition.y < this.sc_.worldHeight / 2)
+    this.sc_.turnSnakeLeft();
+
+    if(this.direction == 0 && this.sc_.snakePosition.x > this.sc_.worldWidth / 2 && this.sc_.snakePosition.y == 0)
+    this.sc_.turnSnakeLeft();
+
+    if(this.direction == 0 && this.sc_.snakePosition.x < this.sc_.worldWidth / 2 && this.sc_.snakePosition.y == 0)
+    this.sc_.turnSnakeLeft();
+
+    if(this.direction == 1 && this.sc_.snakePosition.x == 0 && this.sc_.snakePosition.y > this.sc_.worldHeight / 2)
+    this.sc_.turnSnakeLeft();
+
+    if(this.direction == 1 && this.sc_.snakePosition.x == 0 && this.sc_.snakePosition.y < this.sc_.worldHeight / 2)
+    this.sc_.turnSnakeRight();
+
+    if(this.direction == 2 && this.sc_.snakePosition.x > this.sc_.worldWidth / 2 && this.sc_.snakePosition.y == 0)
+    this.sc_.turnSnakeLeft();
+
+    if(this.direction == 2 && this.sc_.snakePosititon.x < this.sc_.worldWidth / 2 && this.sc_.snakePosition.y == 0)
+    this.sc_.turnSnakeRight();
+  }
+}
+
+class View {
+ constructor(){
+   if(this.constructor=== View)
+   throw new Error ("Cannot Instantiate a View, Which is an Abstract Base Class")
+   else if(!(this.display instanceof Function)) throw new Error("Base Class Must Implement Display Method");
+ }
+}
+
+ class CanvasView extends View {
+   constructor(scaling){
+   super()
+     this.scaling_ = scaling;
+     this.canvas_ = document.createElement("canvas");
+     document.body.appendChild(this.canvas_);
+     this.context_ = this.canvas_.getContext("2d");
+   }
+
+  display(worldModel){
+    this.canvas_.width = worldModel.width * this.scaling_;
+    this.canvas_.height = worldModel.height * this.scaling_;
+    this.context_.fillRect(worldModel.snake.position.x*this.scaling_,worldModel.snake.position.y*this.scaling_,this.scaling_,this.scaling_)
+  }
+}
+
+class InputHandler{
+  constructor(){
+    if(this.constructor===InputHandler)
+    throw new Error("Cannot Instantiate an InputHandler, Whcih is an Abstract Base Class")
+    else if (!(this.madeLeftMove && this.madeRightMove && this.resetLeftMove && this.resetRightMove instanceof Function))
+    throw new Error ("Base Class Must Implement madeRightMove, madeLeftMove, resetLeftMove, resetRightMove Methods");
+  }
+}
+
+class LRKeyInputHandler extends InputHandler{
+  constructor(){
+    super()
+      this.wasLeftArrowPushed_ = false;
+      this.wasRightArrowPushed_ = false;
+    
+      window.addEventListener ("keydown", event =>{
+      if(event.keycode = "37") this.wasLeftArrowPushed_ = true
+      else if(event.keycode = "39") this.wasRightArrowPushed_ = true
+      }); 
+  }
+
+  madeLeftMove(){
+    return this.wasLeftArrowPushed_;
+  }
+
+  madeRightMove(){
+    return this.wasRightArrowPushed_;
+  }
+
+  resetLeftMove(){
+    this.wasLeftArrowPushed_ = false;
+  }
+
+  resetRightMove(){
+    this.wasLeftArrowPushed_ = false;
+  }
+
+}
+
+class HumanPlayer extends Player {
+  constructor(snakeController, inputHandler){
+   super()
+    this.snakeController_ = snakeController;
+    this.inputHandler_ = inputHandler;
+
+    if(this.makeLeftMove === true)
+    this.makeTurn === turnSnakeLeft();
+
+    if(this.makeRightMove === true)
+    this.makeTurn === turnSnakeRight();
+  }
+
+  makeTurn(){
+    if(this.inputHandler.madeLeftMove()){
+       this.snakeController_.turnSnakeLeft()
+       this.inputHandler.resetLeftMove()
+    }
+    if(this.inputHandler.madeRightMove()){
+      this.snakeController_.turnSnakeRight()
+      this.inputHandler.resetRightMove()
+    }
+  }
+}
+
+
+class GameController {
+  constructor(world){
+    this.world_ = world;
+    this.player1_ = null;
+    this.player2_ = null;
+  }
+
+  set player1 (p1) {
+    if(p1 instanceof player1) this.player1_ = p1;
+    else throw new Error ("Not an Instance of a Player");
+  } 
+
+  set player2 (p2){
+    if(p2 instanceof player2) this.player2_= p2;
+    else throw new Error ("Not an Instance of a Player");
+  }
+
+  run(){
+    let lastTime = 0;
+
+    let updateFrame = milliseconds => {
+      this.player1_.makeTurn();
+      this.player2_.makeTurn();
+      let change = milliseconds - lastTime ;
+      if(change >= 250){
+        this.world_.update(1)
+        lastTime = lastTime + 250
+      }
+    }
+    requestAnimationFrame(updateFrame);
+  }
+}
+
+
+let mainSnake = new Snake;
+let newWorld = new WorldModel(mainSnake,10,10);
+let newCanvas = new CanvasView(5);
+let newController = new GameController(newWorld);
+
+
+newWorld.view = newCanvas;
+newWorld.update(5);
+console.log(mainSnake.position);
+mainSnake.turnRight();
+newWorld.update(10);
+console.log(mainSnake.position);
+mainSnake.turnRight();
+mainSnake.turnRight();
+newWorld.update(5);
+console.log(mainSnake.position);
+mainSnake.turnLeft();
+newWorld.update(5);
+console.log(mainSnake.position);
+console.log(newWorld.height);
+newWorld.update(5)
+
+
+
