@@ -269,7 +269,7 @@ class GameController {
     let updateFrame = milliseconds => {
       this.player1_.makeTurn();
       this.player2_.makeTurn();
-      let change = milliseconds - lastTime ;
+      let change = milliseconds - lastTime;
       if(change >= 250){
         this.world_.update(1)
         lastTime = lastTime + 250
@@ -287,6 +287,10 @@ let newCanvas = new CanvasView(5);
 let newController = new GameController(newWorld);
 
 
+
+
+newController.player1 = HumanPlayer();
+newController.player2 = AvoidWallsPlayer();
 newWorld.view = newCanvas;
 newWorld.update(5);
 console.log(mainSnake.position);
@@ -302,7 +306,10 @@ newWorld.update(5);
 console.log(mainSnake.position);
 console.log(newWorld.height);
 newWorld.update(5);
+
+
 newController.run();
+
 
 
 
