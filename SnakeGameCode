@@ -1,18 +1,22 @@
 class Snake{
   constructor (){
     this.position_ = new Point(0,0);
-    this.direction_=0;
+    this.direction_="Up";
   }
 
   move(squares){
-    if (this.direction_== 0)
+    if (this.direction_== "Up") {
       this.position_= new Point (this.position_.x,this.position_.y - squares);
-    else if(this.direction_ == 1)
+    }
+    else if(this.direction_ == "Right") {
       this.position_ = new Point (this.position_.x + squares,this.position_.y);
-    else if(this.direction_== 2)
-      this.position_ = new Point (this.position_.x,this.position_.y + squares);
-    else if(this.direction_ == 3)
-      this.position_ = new Point (this.position_.x - squares,this.position_.y);
+    }
+    else if(this.direction_== "Down") {
+      this.position_ = new Point (this.position_.x, this.position_.y + squares);
+    }
+    else if(this.direction_ == "Left") {
+      this.position_ = new Point (this.position_.x - squares, this.position_.y);
+    }
   }
 
   get direction(){
@@ -24,25 +28,25 @@ class Snake{
   }
 
   turnLeft(){
-    if (this.direction_==0)
-      this.direction_=3;
-    else if (this.direction_==1)
-      this.direction_=0;
-    else if (this.direction_==2)
-      this.direction_=1;
-    else if (this.direction_==3)
-      this.direction_=2;
+    if (this.direction_=="Up")
+      this.direction_="Left";
+    else if (this.direction_=="Right")
+      this.direction_="Up";
+    else if (this.direction_=="Down")
+      this.direction_="Right";
+    else if (this.direction_=="Left")
+      this.direction_="Down";
   }
 
   turnRight(){
-    if (this.direction_==0)
-     this.direction_=1;
-    else if (this.direction_==1)
-      this.direction_=2;
-    else if (this.direction_==2)
-      this.direction_=3;
-    else if (this.direction_==3)
-      this.direction_=0;
+    if (this.direction_=="Up")
+     this.direction_="Right";
+    else if (this.direction_=="Right")
+      this.direction_="Down";
+    else if (this.direction_=="Down")
+      this.direction_="Left";
+    else if (this.direction_=="Left")
+      this.direction_="Up";
   }
 }
 
@@ -60,7 +64,7 @@ class Point{
 }
 
 class WorldModel{
-  constructor(snake,view,width,height){
+  constructor(snake,width,height){
     this.width_ = width;
     this.height_ = height;
     this.snake_ = snake;
@@ -102,7 +106,7 @@ class SnakeController{
   }
 
   turnSnakeRight(){
-    this.slitherer_.turnLeft();
+    this.slitherer_.turnRight();
   }
 
   get snakePosition(){
@@ -126,13 +130,13 @@ class Player {
   constructor(sc){
     if(this.constructor === Player) throw new Error("Cannot instantiate a Player, which is an abstract base class");
     else if (!(this.makeTurn instanceof Function)) throw new Error ("Base class must implement makeTurn method");
-    this.sc_ = sc;
+    this.snakeController_= sc;
   }
 }
 
 class AvoidWallsPlayer extends Player {
   constructor(){
-  super();
+  super(sc);
   }
 
   makeTurn(){
@@ -170,8 +174,8 @@ class View {
  }
 }
 
- class CanvasView extends View {
-   constructor(scaling){
+class CanvasView extends View {
+  constructor(scaling){
    super()
      this.scaling_ = scaling;
      this.canvas_ = document.createElement("canvas");
@@ -182,6 +186,7 @@ class View {
   display(worldModel){
     this.canvas_.width = worldModel.width * this.scaling_;
     this.canvas_.height = worldModel.height * this.scaling_;
+    this.context_.fillStyle = "white";
     this.context_.fillRect(worldModel.snake.position.x*this.scaling_,worldModel.snake.position.y*this.scaling_,this.scaling_,this.scaling_)
   }
 }
@@ -200,11 +205,11 @@ class LRKeyInputHandler extends InputHandler{
     super()
       this.wasLeftArrowPushed_ = false;
       this.wasRightArrowPushed_ = false;
-    
-      window.addEventListener ("keydown", event =>{
-      if(event.keycode = "37") this.wasLeftArrowPushed_ = true
-      else if(event.keycode = "39") this.wasRightArrowPushed_ = true
-      }); 
+      let eventHandler = event =>{
+        if(event.keyCode === 37) this.wasLeftArrowPushed_ = true;
+        else if(event.keyCode === 39) this.wasRightArrowPushed_ = true;
+      }
+      window.addEventListener("keydown", eventHandler); 
   }
 
   madeLeftMove(){
@@ -220,14 +225,14 @@ class LRKeyInputHandler extends InputHandler{
   }
 
   resetRightMove(){
-    this.wasLeftArrowPushed_ = false;
+    this.wasRightArrowPushed_ = false;
   }
 
 }
 
 class HumanPlayer extends Player {
   constructor(snakeController, inputHandler){
-   super(sc)
+   super(snakeController)
     this.snakeController_ = snakeController;
     this.inputHandler_ = inputHandler;
 
@@ -235,8 +240,8 @@ class HumanPlayer extends Player {
 
   makeTurn(){
     if(this.inputHandler_.madeLeftMove()){
-       this.snakeController_.turnSnakeLeft()
-       this.inputHandler_.resetLeftMove()
+      this.snakeController_.turnSnakeLeft()
+      this.inputHandler_.resetLeftMove()
     }
     if(this.inputHandler_.madeRightMove()){
       this.snakeController_.turnSnakeRight()
@@ -254,12 +259,12 @@ class GameController {
   }
 
   set player1 (p1) {
-    if(p1 instanceof player1) this.player1_ = p1;
+    if(p1 instanceof Player) this.player1_ = p1;
     else throw new Error ("Not an Instance of a Player");
   } 
 
   set player2 (p2){
-    if(p2 instanceof player2) this.player2_= p2;
+    if(p2 instanceof Player) this.player2_= p2;
     else throw new Error ("Not an Instance of a Player");
   }
 
@@ -272,7 +277,7 @@ class GameController {
       let change = milliseconds - lastTime;
       if(change >= 250){
         this.world_.update(1)
-        lastTime = lastTime + 250
+        lastTime = lastTime + 250;
       }
       requestAnimationFrame(updateFrame);
     }
@@ -282,15 +287,18 @@ class GameController {
 
 
 let mainSnake = new Snake;
-let newWorld = new WorldModel(mainSnake,10,10);
+let snake2 = new Snake;
 let newCanvas = new CanvasView(5);
-let newController = new GameController(newWorld);
+let newWorld = new WorldModel(mainSnake,75,75);
+let mainController = new GameController(newWorld);
+let handler = new LRKeyInputHandler();
+let sc = new SnakeController(newWorld,mainSnake);
+let hp = new HumanPlayer(sc,handler);
+mainController.player1 = hp;
+let sc2 = new SnakeController(newWorld,snake2);
+let awp = new AvoidWallsPlayer(sc2);
+mainController.player2 = awp;
 
-
-
-
-newController.player1 = HumanPlayer();
-newController.player2 = AvoidWallsPlayer();
 newWorld.view = newCanvas;
 newWorld.update(5);
 console.log(mainSnake.position);
@@ -306,9 +314,7 @@ newWorld.update(5);
 console.log(mainSnake.position);
 console.log(newWorld.height);
 newWorld.update(5);
-
-
-newController.run();
+mainController.run();
 
 
 
