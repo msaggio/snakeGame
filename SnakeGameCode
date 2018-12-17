@@ -190,7 +190,7 @@ class InputHandler{
   constructor(){
     if(this.constructor===InputHandler)
     throw new Error("Cannot Instantiate an InputHandler, Which is an Abstract Base Class")
-    else if (!(this.madeLeftMove && instanceof Function this.madeRightMove && instanceof Function this.resetLeftMove && instanceof Function this.resetRightMove instanceof Function))
+    else if (!(this.madeLeftMove instanceof Function &&  this.madeRightMove instanceof Function &&  this.resetLeftMove instanceof Function && this.resetRightMove instanceof Function))
     throw new Error ("Base Class Must Implement madeRightMove, madeLeftMove, resetLeftMove, resetRightMove Methods");
   }
 }
