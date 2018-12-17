@@ -189,8 +189,8 @@ class View {
 class InputHandler{
   constructor(){
     if(this.constructor===InputHandler)
-    throw new Error("Cannot Instantiate an InputHandler, Whcih is an Abstract Base Class")
-    else if (!(this.madeLeftMove && this.madeRightMove && this.resetLeftMove && this.resetRightMove instanceof Function))
+    throw new Error("Cannot Instantiate an InputHandler, Which is an Abstract Base Class")
+    else if (!(this.madeLeftMove && instanceof Function this.madeRightMove && instanceof Function this.resetLeftMove && instanceof Function this.resetRightMove instanceof Function))
     throw new Error ("Base Class Must Implement madeRightMove, madeLeftMove, resetLeftMove, resetRightMove Methods");
   }
 }
@@ -227,25 +227,20 @@ class LRKeyInputHandler extends InputHandler{
 
 class HumanPlayer extends Player {
   constructor(snakeController, inputHandler){
-   super()
+   super(sc)
     this.snakeController_ = snakeController;
     this.inputHandler_ = inputHandler;
 
-    if(this.makeLeftMove === true)
-    this.makeTurn === turnSnakeLeft();
-
-    if(this.makeRightMove === true)
-    this.makeTurn === turnSnakeRight();
   }
 
   makeTurn(){
-    if(this.inputHandler.madeLeftMove()){
+    if(this.inputHandler_.madeLeftMove()){
        this.snakeController_.turnSnakeLeft()
-       this.inputHandler.resetLeftMove()
+       this.inputHandler_.resetLeftMove()
     }
-    if(this.inputHandler.madeRightMove()){
+    if(this.inputHandler_.madeRightMove()){
       this.snakeController_.turnSnakeRight()
-      this.inputHandler.resetRightMove()
+      this.inputHandler_.resetRightMove()
     }
   }
 }
@@ -279,6 +274,7 @@ class GameController {
         this.world_.update(1)
         lastTime = lastTime + 250
       }
+      requestAnimationFrame(updateFrame);
     }
     requestAnimationFrame(updateFrame);
   }
@@ -305,7 +301,8 @@ mainSnake.turnLeft();
 newWorld.update(5);
 console.log(mainSnake.position);
 console.log(newWorld.height);
-newWorld.update(5)
+newWorld.update(5);
+newController.run();
 
 
 
